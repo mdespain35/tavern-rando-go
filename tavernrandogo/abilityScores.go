@@ -1,4 +1,4 @@
-package tavernrandogo
+package main
 
 import (
 	"fmt"
@@ -33,7 +33,7 @@ type AbilityScore struct {
 
 // Stringer method
 func (a AbilityScore) String() string {
-	return fmt.Sprintf("Score: %d\nModifier: %d\n", a.score, a.modifier)
+	return fmt.Sprintf("Score: %d\tModifier: %d\n", a.score, a.modifier)
 }
 
 // modifier calculates the ability score's modifier which determines the bonus/penalty for that ability.

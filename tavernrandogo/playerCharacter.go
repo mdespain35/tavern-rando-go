@@ -1,4 +1,4 @@
-package tavernrandogo
+package main
 
 import (
 	"fmt"
@@ -23,6 +23,9 @@ func (p PlayerCharacter) String() string {
 // GenerateAbilityScores generates the ability scores and their modifiers.
 // TODO: Make it able to optimize based on player's class/race
 func (p *PlayerCharacter) GenerateAbilityScores() {
+	if p.abilityScores == nil {
+		p.abilityScores = make(map[string]AbilityScore)
+	}
 	for _, i := range PlayerStats {
 		newScore := ability()
 		p.abilityScores[i] = AbilityScore{
@@ -38,4 +41,14 @@ func (p *PlayerCharacter) GenerateLevel() {
 
 func (p *PlayerCharacter) GenerateRace() {
 	p.race = Races[rand.Intn(len(Races))]
+}
+
+func main() {
+	var player PlayerCharacter
+
+	player.GenerateRace()
+	player.GenerateAbilityScores()
+	player.GenerateLevel()
+
+	fmt.Println(player)
 }

@@ -1,4 +1,4 @@
-package tavernrandogo
+package main
 
 var Races = []string{
 	"Dragonborn",

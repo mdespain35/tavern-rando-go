@@ -11,7 +11,7 @@ type PlayerCharacter struct {
 	race string
 	// background    string
 	level int
-	// class         []string
+	//class         []PlayerClass
 	abilityScores AbilityScores
 	// hitpoints     int
 }

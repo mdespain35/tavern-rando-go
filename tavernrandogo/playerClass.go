@@ -1,6 +1,9 @@
 package main
 
-import "math/rand"
+import (
+	"fmt"
+	"math/rand"
+)
 
 var ClassOptions = []string{
 	"Artificer",
@@ -35,13 +38,21 @@ func (pc *PlayerClass) LevelUp() {
 	}
 }
 
+func (pc PlayerClass) String() string {
+	return fmt.Sprintf("%s,%s %d", pc.name, pc.subClass, pc.level)
+}
+
 func chooseSubclass(options []string) string {
 	return options[rand.Intn(len(options))]
 }
 
-func PickClass() PlayerClass {
+func PickClass() string {
+	return ClassOptions[rand.Intn(len(ClassOptions))]
+}
+
+func GenerateClass(class string) PlayerClass {
 	p := PlayerClass{
-		name:     ClassOptions[rand.Intn(len(ClassOptions))],
+		name:     class,
 		subClass: "",
 		level:    1,
 	}

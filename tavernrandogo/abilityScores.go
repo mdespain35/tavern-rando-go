@@ -20,20 +20,29 @@ type AbilityScores map[string]AbilityScore
 // Stringer method
 func (aS AbilityScores) String() string {
 	statBlock := ""
-	for ability, scores := range aS {
-		statBlock += fmt.Sprintf("%s\n%s", ability, scores.String())
+	for _, scores := range PlayerStats {
+		statBlock += fmt.Sprintf("%s\n%s", scores, aS[scores].String())
 	}
 	return statBlock
 }
 
 type AbilityScore struct {
-	score    int
-	modifier int
+	Score    int
+	Modifier int
 }
 
 // Stringer method
 func (a AbilityScore) String() string {
-	return fmt.Sprintf("Score: %d\tModifier: %d\n", a.score, a.modifier)
+	return fmt.Sprintf("Score: %d\tModifier: %d\n", a.Score, a.Modifier)
+}
+
+// IncreaseAbilityScore takes an int and increases the ability score
+func (a *AbilityScore) IncreaseAbilityScore(increase int) {
+	a.Score += increase
+}
+
+func (a *AbilityScore) UpdateModifier() {
+	a.Modifier = modifier(a.Score)
 }
 
 // modifier calculates the ability score's modifier which determines the bonus/penalty for that ability.
@@ -53,7 +62,8 @@ func ability() int {
 		rolls = append(rolls, rand.Intn(6)+1)
 	}
 	slices.Sort(rolls)
-	for j := 1; j < 4; j++ {
+	slices.Reverse(rolls)
+	for j := 0; j < 3; j++ {
 		sum += rolls[j]
 	}
 	return sum

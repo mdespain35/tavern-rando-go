@@ -12,27 +12,51 @@ type PlayerCharacter struct {
 	// background    string
 	level int
 	//class         []PlayerClass
-	abilityScores AbilityScores
+	AbilityScores AbilityScores
 	// hitpoints     int
 }
 
+var Optimized bool
+
 func (p PlayerCharacter) String() string {
-	return fmt.Sprintf("Player Random\nRace: %s\tLevel: %d\n%s", p.race, p.level, p.abilityScores.String())
+	return fmt.Sprintf("Player Random\nRace: %s\tLevel: %d\n%s", p.race, p.level, p.AbilityScores.String())
 }
 
 // GenerateAbilityScores generates the ability scores and their modifiers.
-// TODO: Make it able to optimize based on player's class/race
 func (p *PlayerCharacter) GenerateAbilityScores() {
-	if p.abilityScores == nil {
-		p.abilityScores = make(map[string]AbilityScore)
+	if p.AbilityScores == nil {
+		p.AbilityScores = make(map[string]AbilityScore)
 	}
+	if Optimized {
+		p.OptimizedScores()
+	} else {
+		p.ChaosScores()
+	}
+
+}
+
+func (p *PlayerCharacter) ChaosScores() {
 	for _, i := range PlayerStats {
 		newScore := ability()
-		p.abilityScores[i] = AbilityScore{
-			score:    newScore,
-			modifier: modifier(newScore),
+		p.AbilityScores[i] = AbilityScore{
+			Score:    newScore,
+			Modifier: modifier(newScore),
 		}
 	}
+	// Randomized Racial bonus
+	for i := 2; i > 0; i-- {
+		bonus := rand.Intn(len(PlayerStats))
+		ability := p.AbilityScores[PlayerStats[bonus]]
+		ability.IncreaseAbilityScore(i)
+		ability.UpdateModifier()
+		p.AbilityScores[PlayerStats[bonus]] = ability
+	}
+
+}
+
+// TODO: Make it able to optimize based on player's class
+func (p *PlayerCharacter) OptimizedScores() {
+
 }
 
 func (p *PlayerCharacter) GenerateLevel() {
@@ -45,7 +69,7 @@ func (p *PlayerCharacter) GenerateRace() {
 
 func main() {
 	var player PlayerCharacter
-
+	Optimized = false
 	player.GenerateRace()
 	player.GenerateAbilityScores()
 	player.GenerateLevel()

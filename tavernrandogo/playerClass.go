@@ -39,7 +39,7 @@ func (pc *PlayerClass) LevelUp() {
 }
 
 func (pc PlayerClass) String() string {
-	return fmt.Sprintf("%s,%s %d", pc.name, pc.subClass, pc.level)
+	return fmt.Sprintf("%s,%s\t%d\n", pc.name, pc.subClass, pc.level)
 }
 
 func chooseSubclass(options []string) string {

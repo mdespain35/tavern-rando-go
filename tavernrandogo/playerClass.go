@@ -31,6 +31,7 @@ type PlayerClass struct {
 	subclassOptions []string
 }
 
+// LevelUp levels up the PlayerClass and assigns a subclass if the appropriate level is reached.
 func (pc *PlayerClass) LevelUp() {
 	pc.level++
 	if pc.level == pc.subClassLevel {
@@ -42,14 +43,17 @@ func (pc PlayerClass) String() string {
 	return fmt.Sprintf("%s,%s\t%d\n", pc.name, pc.subClass, pc.level)
 }
 
+// chooseSubclass returns a random subclass from the PlayerClass's subclassOptions field.
 func chooseSubclass(options []string) string {
 	return options[rand.Intn(len(options))]
 }
 
+// PickClass selects a class randomly from the ClassOptions slice.
 func PickClass() string {
 	return ClassOptions[rand.Intn(len(ClassOptions))]
 }
 
+// GenerateClass populates a PlayerClass object based on a string and then returns the populated object.
 func GenerateClass(class string) PlayerClass {
 	p := PlayerClass{
 		name:     class,

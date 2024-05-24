@@ -28,6 +28,7 @@ func (p PlayerCharacter) String() string {
 	return player
 }
 
+// GeneratePlayerClass initializes the p.class field if needed and then adds a PlayerClass to the slice
 func (p *PlayerCharacter) GeneratePlayerClass() {
 	if p.class == nil {
 		p.class = []PlayerClass{}
@@ -35,7 +36,7 @@ func (p *PlayerCharacter) GeneratePlayerClass() {
 	p.class = append(p.class, GenerateClass(verifyClass(*p, PickClass())))
 }
 
-// GenerateAbilityScores generates the ability scores and their modifiers.
+// GenerateAbilityScores generates the ability scores and their modifiers, should only be called once.
 func (p *PlayerCharacter) GenerateAbilityScores() {
 	if p.AbilityScores == nil {
 		p.AbilityScores = make(map[string]AbilityScore)
@@ -48,6 +49,8 @@ func (p *PlayerCharacter) GenerateAbilityScores() {
 	p.hitpoints = p.class[0].hitDie
 }
 
+// LevelUp levels up the Player's character, while also handling the leveling for the Player's class by using
+// the PlayerClass definition of LevelUp.
 func (p *PlayerCharacter) LevelUp() {
 	p.level++
 	leveledClass := 0
@@ -61,12 +64,14 @@ func (p *PlayerCharacter) LevelUp() {
 		}
 		p.class[leveledClass].LevelUp()
 		if p.class[leveledClass].level%4 == 0 {
+			// TODO: If statement checking for optimization. Will implement after building optimization methods.
 			updateChaosScores(p)
-		}
+		} // TODO: Update to check for other classes that get more AS improvements.
 	}
-	p.hitpoints += rand.Intn(p.class[leveledClass].hitDie) + 1
+	p.hitpoints += rand.Intn(p.class[leveledClass].hitDie) + 1 // Health increases based on which class was leveled up.
 }
 
+// verifyClass ensures that when multiclassing, an already selected class is not added.
 func verifyClass(p PlayerCharacter, c string) string {
 	for _, pc := range p.class {
 		if pc.name == c {
@@ -76,6 +81,7 @@ func verifyClass(p PlayerCharacter, c string) string {
 	return c
 }
 
+// ChaosScores creates the ability scores for unoptimized characters for a truly random experience.
 func (p *PlayerCharacter) ChaosScores() {
 	for _, i := range PlayerStats {
 		newScore := ability()
@@ -87,6 +93,7 @@ func (p *PlayerCharacter) ChaosScores() {
 	chaosRacialBonus(p)
 }
 
+// chaosRacialBonus adds a random racial bonus to 2 ability scores rather than using the preferred stats of the Player's class.
 func chaosRacialBonus(p *PlayerCharacter) {
 	// Randomized Racial bonus
 	for i := 2; i > 0; i-- {
@@ -98,7 +105,8 @@ func chaosRacialBonus(p *PlayerCharacter) {
 	}
 }
 
-// TODO: Finish implementing this, needs to check to make sure AS doesn't exceed 20
+// updateChaosScores updates the Player's ability scores randomly when the Player's class hits a level that triggers
+// an ability score improvement.
 func updateChaosScores(p *PlayerCharacter) {
 	points := 2
 	for points > 0 {
@@ -113,6 +121,7 @@ func updateChaosScores(p *PlayerCharacter) {
 	}
 }
 
+// updateScores handles the actual updating of the ability scores.
 func updateScores(as AbilityScore, bonus int) AbilityScore {
 	update := as
 	update.IncreaseAbilityScore(bonus)
@@ -125,14 +134,17 @@ func (p *PlayerCharacter) OptimizedScores() {
 
 }
 
+// GenerateLevel is a helper function for if a level is not specified by a user. May remove later.
 func GenerateLevel() int {
 	return rand.Intn(20) + 1
 }
 
+// GenerateRace populates the p.race field by randomly selecting a race from the Races slice.
 func (p *PlayerCharacter) GenerateRace() {
 	p.race = Races[rand.Intn(len(Races))]
 }
 
+// CreatePlayerCharacter puts all of the pieces of the sandwich together and returns a PlayerCharacter object.
 func CreatePlayerCharacter() PlayerCharacter {
 	var player PlayerCharacter
 	player.level = 1
@@ -143,6 +155,7 @@ func CreatePlayerCharacter() PlayerCharacter {
 	for i := 1; i < GenerateLevel(); i++ {
 		player.LevelUp()
 	}
+	// Calculate Constitution bonus at the end in case Constitution was increased during leveling.
 	player.hitpoints += player.AbilityScores["Constitution"].Modifier * player.level
 
 	return player

@@ -36,11 +36,12 @@ func (a AbilityScore) String() string {
 	return fmt.Sprintf("Score: %d\tModifier: %d\n", a.Score, a.Modifier)
 }
 
-// IncreaseAbilityScore takes an int and increases the ability score
+// IncreaseAbilityScore takes an int and increases the ability score.
 func (a *AbilityScore) IncreaseAbilityScore(increase int) {
 	a.Score += increase
 }
 
+// UpdateModifier calculates the change in the modifier after an ability score change has occurred.
 func (a *AbilityScore) UpdateModifier() {
 	a.Modifier = modifier(a.Score)
 }

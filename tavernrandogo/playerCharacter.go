@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"slices"
 )
 
 // TODO: Implement the rest of the PlayerCharacter fields
@@ -54,6 +55,7 @@ func (p *PlayerCharacter) GenerateAbilityScores() {
 func (p *PlayerCharacter) LevelUp() {
 	p.level++
 	leveledClass := 0
+	upScores := false // Flag marking if ability score improvements needed.
 
 	if rand.Intn(20)+1 == 20 { // Roll a natural 20 to multiclass
 		p.GeneratePlayerClass()
@@ -63,10 +65,25 @@ func (p *PlayerCharacter) LevelUp() {
 			leveledClass = rand.Intn(len(p.class))
 		}
 		p.class[leveledClass].LevelUp()
-		if p.class[leveledClass].level%4 == 0 {
-			// TODO: If statement checking for optimization. Will implement after building optimization methods.
-			updateChaosScores(p)
-		} // TODO: Update to check for other classes that get more AS improvements.
+		// Block checking if an ability score improvement is needed.
+		if p.class[leveledClass].level%4 == 0 || p.class[leveledClass].level == 19 {
+			if p.class[leveledClass].name == "Barbarian" && p.class[leveledClass].level == 20 {
+				p.AbilityScores["Strength"] = updateScores(p.AbilityScores["Strength"], 4)
+				p.AbilityScores["Constitution"] = updateScores(p.AbilityScores["Constitution"], 4)
+			} else {
+				upScores = true
+			}
+		} else if p.class[leveledClass].name == "Fighter" {
+			if p.class[leveledClass].level == 6 || p.class[leveledClass].level == 14 {
+				upScores = true
+			}
+		} else if p.class[leveledClass].name == "Rogue" && p.class[leveledClass].level == 10 {
+			upScores = true
+		}
+	}
+	if upScores {
+		// TODO: If statement checking for optimization. Will implement after building optimization methods.
+		updateChaosScores(p)
 	}
 	p.hitpoints += rand.Intn(p.class[leveledClass].hitDie) + 1 // Health increases based on which class was leveled up.
 }
@@ -131,6 +148,12 @@ func updateScores(as AbilityScore, bonus int) AbilityScore {
 
 // TODO: Make it able to optimize based on player's class
 func (p *PlayerCharacter) OptimizedScores() {
+	scores := []int{}
+	for i := 0; i < 6; i++ { // Generate ability scores for sorting.
+		scores = append(scores, ability())
+	}
+	slices.Sort(scores)
+	slices.Reverse(scores)
 
 }
 

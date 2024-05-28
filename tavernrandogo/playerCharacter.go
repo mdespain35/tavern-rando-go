@@ -82,8 +82,11 @@ func (p *PlayerCharacter) LevelUp() {
 		}
 	}
 	if upScores {
-		// TODO: If statement checking for optimization. Will implement after building optimization methods.
-		updateChaosScores(p)
+		if Optimized {
+			updateOptmizeScores(p, leveledClass)
+		} else {
+			updateChaosScores(p, 2)
+		}
 	}
 	p.hitpoints += rand.Intn(p.class[leveledClass].hitDie) + 1 // Health increases based on which class was leveled up.
 }
@@ -115,17 +118,14 @@ func chaosRacialBonus(p *PlayerCharacter) {
 	// Randomized Racial bonus
 	for i := 2; i > 0; i-- {
 		bonus := rand.Intn(len(PlayerStats))
-		ability := p.AbilityScores[PlayerStats[bonus]]
-		ability.IncreaseAbilityScore(i)
-		ability.UpdateModifier()
-		p.AbilityScores[PlayerStats[bonus]] = ability
+		p.AbilityScores[PlayerStats[bonus]] = updateScores(p.AbilityScores[PlayerStats[bonus]], i)
 	}
 }
 
 // updateChaosScores updates the Player's ability scores randomly when the Player's class hits a level that triggers
 // an ability score improvement.
-func updateChaosScores(p *PlayerCharacter) {
-	points := 2
+func updateChaosScores(p *PlayerCharacter, point int) {
+	points := point
 	for points > 0 {
 		bonus := rand.Intn(len(PlayerStats))
 		if p.AbilityScores[PlayerStats[bonus]].Score+points < 20 {
@@ -154,7 +154,51 @@ func (p *PlayerCharacter) OptimizedScores() {
 	}
 	slices.Sort(scores)
 	slices.Reverse(scores)
+	for i := 0; i < len(p.class[0].preferredStats); i++ { // Assigning highest rolls to preferred stats for level 1 class.
+		p.AbilityScores[p.class[0].preferredStats[i]] = AbilityScore{
+			Score:    scores[i],
+			Modifier: modifier(scores[i]),
+		}
+	}
 
+	for j := len(p.class[0].preferredStats); j < len(scores); j++ {
+		for _, a := range PlayerStats {
+			if _, ok := p.AbilityScores[a]; !ok { // Fill the ability score if it has not been populated yet.
+				p.AbilityScores[a] = AbilityScore{
+					Score:    scores[j],
+					Modifier: modifier(scores[j]),
+				}
+				break
+			}
+		}
+	}
+	optimizeRacialBonus(p)
+}
+
+func optimizeRacialBonus(p *PlayerCharacter) {
+	p.AbilityScores[p.class[0].preferredStats[0]] = updateScores(p.AbilityScores[p.class[0].preferredStats[0]], 2)
+	p.AbilityScores[p.class[0].preferredStats[1]] = updateScores(p.AbilityScores[p.class[0].preferredStats[1]], 1)
+}
+
+func updateOptmizeScores(p *PlayerCharacter, leveledClass int) {
+	points := 2
+	for _, a := range p.class[leveledClass].preferredStats {
+		if p.AbilityScores[a].Score+points < 20 {
+			p.AbilityScores[a] = updateScores(p.AbilityScores[a], points)
+			points -= points
+		} else if p.AbilityScores[a].Score < 20 {
+			p.AbilityScores[a] = updateScores(p.AbilityScores[a], 1)
+			points--
+		}
+		if points == 0 { // Break out of loop as soon as bonus is awarded.
+			break
+		}
+	}
+
+	// TODO: Add a feat counter for if the preferred stats are maxed out?
+	if points > 0 { // Make sure no points get wasted.
+		updateChaosScores(p, points)
+	}
 }
 
 // GenerateLevel is a helper function for if a level is not specified by a user. May remove later.
@@ -185,7 +229,8 @@ func CreatePlayerCharacter() PlayerCharacter {
 }
 
 func main() {
-	Optimized = false
+	// TODO: Upgrade functionality to read arguments from command line
+	Optimized = true
 	player := CreatePlayerCharacter()
 
 	fmt.Println(player)

@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"slices"
+	"strconv"
 )
 
 // TODO: Implement the rest of the PlayerCharacter fields
@@ -18,6 +20,7 @@ type PlayerCharacter struct {
 }
 
 var Optimized bool
+var TargetLevel int
 
 func (p PlayerCharacter) String() string {
 	player := ""
@@ -219,7 +222,7 @@ func CreatePlayerCharacter() PlayerCharacter {
 	player.GeneratePlayerClass()
 	player.GenerateAbilityScores()
 
-	for i := 1; i < GenerateLevel(); i++ {
+	for i := 1; i < TargetLevel; i++ {
 		player.LevelUp()
 	}
 	// Calculate Constitution bonus at the end in case Constitution was increased during leveling.
@@ -228,9 +231,24 @@ func CreatePlayerCharacter() PlayerCharacter {
 	return player
 }
 
+func populateGlobalVars() {
+	Optimized = false
+	TargetLevel = GenerateLevel()
+
+	for i := 1; i < len(os.Args); i++ {
+		if val, err := strconv.Atoi(os.Args[i]); err == nil {
+			if val > 0 && val <= 20 {
+				TargetLevel = val
+			}
+		} else if boolVal, err := strconv.ParseBool(os.Args[i]); err == nil {
+			Optimized = boolVal
+		}
+	}
+}
+
 func main() {
 	// TODO: Upgrade functionality to read arguments from command line
-	Optimized = true
+	populateGlobalVars()
 	player := CreatePlayerCharacter()
 
 	fmt.Println(player)

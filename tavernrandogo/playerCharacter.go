@@ -60,6 +60,7 @@ func (p *PlayerCharacter) LevelUp() {
 	leveledClass := 0
 	upScores := false // Flag marking if ability score improvements needed.
 
+	// TODO: Add a check to ensure the character has the stats to multiclass otherwise pick a different class.
 	if rand.Intn(20)+1 == 20 { // Roll a natural 20 to multiclass
 		p.GeneratePlayerClass()
 		leveledClass = len(p.class) - 1
@@ -149,7 +150,7 @@ func updateScores(as AbilityScore, bonus int) AbilityScore {
 	return update
 }
 
-// TODO: Make it able to optimize based on player's class
+// OptimizedScores generates a character that applies the highest rolled stats to the preferred stats of the character's class.
 func (p *PlayerCharacter) OptimizedScores() {
 	scores := []int{}
 	for i := 0; i < 6; i++ { // Generate ability scores for sorting.
@@ -178,11 +179,13 @@ func (p *PlayerCharacter) OptimizedScores() {
 	optimizeRacialBonus(p)
 }
 
+// optimizedRacialBonus assigns the racial bonus to the preferred stats of the Character's class.
 func optimizeRacialBonus(p *PlayerCharacter) {
 	p.AbilityScores[p.class[0].preferredStats[0]] = updateScores(p.AbilityScores[p.class[0].preferredStats[0]], 2)
 	p.AbilityScores[p.class[0].preferredStats[1]] = updateScores(p.AbilityScores[p.class[0].preferredStats[1]], 1)
 }
 
+// updateOptimizedScores prioritizes the preferred stats of the leveled class for the ability score improvement.
 func updateOptmizeScores(p *PlayerCharacter, leveledClass int) {
 	points := 2
 	for _, a := range p.class[leveledClass].preferredStats {
@@ -231,23 +234,24 @@ func CreatePlayerCharacter() PlayerCharacter {
 	return player
 }
 
+// populateGlobalVars is a helper function that reads in input from the CLI and assigns the useful args to the global vars of this program.
 func populateGlobalVars() {
+	// Assign default values in case call is missing one or more variables or bad args are passed.
 	Optimized = false
 	TargetLevel = GenerateLevel()
 
 	for i := 1; i < len(os.Args); i++ {
-		if val, err := strconv.Atoi(os.Args[i]); err == nil {
+		if val, err := strconv.Atoi(os.Args[i]); err == nil { // Check if arg is an int.
 			if val > 0 && val <= 20 {
 				TargetLevel = val
 			}
-		} else if boolVal, err := strconv.ParseBool(os.Args[i]); err == nil {
+		} else if boolVal, err := strconv.ParseBool(os.Args[i]); err == nil { // Check if arg is a bool.
 			Optimized = boolVal
 		}
 	}
 }
 
 func main() {
-	// TODO: Upgrade functionality to read arguments from command line
 	populateGlobalVars()
 	player := CreatePlayerCharacter()
 

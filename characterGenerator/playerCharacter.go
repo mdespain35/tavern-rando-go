@@ -1,4 +1,4 @@
-package main
+package generator
 
 import (
 	"fmt"
@@ -235,7 +235,7 @@ func CreatePlayerCharacter() PlayerCharacter {
 }
 
 // populateGlobalVars is a helper function that reads in input from the CLI and assigns the useful args to the global vars of this program.
-func populateGlobalVars() {
+func PopulateGlobalVars() {
 	// Assign default values in case call is missing one or more variables or bad args are passed.
 	Optimized = false
 	TargetLevel = GenerateLevel()
@@ -249,11 +249,4 @@ func populateGlobalVars() {
 			Optimized = boolVal
 		}
 	}
-}
-
-func main() {
-	populateGlobalVars()
-	player := CreatePlayerCharacter()
-
-	fmt.Println(player)
 }

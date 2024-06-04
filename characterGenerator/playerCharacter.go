@@ -50,7 +50,7 @@ func (p *PlayerCharacter) GenerateAbilityScores() {
 	} else {
 		p.ChaosScores()
 	}
-	p.Hitpoints = p.Class[0].hitDie
+	p.Hitpoints = p.Class[0].HitDie
 }
 
 // LevelUp levels up the Player's character, while also handling the leveling for the Player's Class by using
@@ -70,18 +70,18 @@ func (p *PlayerCharacter) LevelUp() {
 		}
 		p.Class[leveledClass].LevelUp()
 		// Block checking if an ability score improvement is needed.
-		if p.Class[leveledClass].level%4 == 0 || p.Class[leveledClass].level == 19 {
-			if p.Class[leveledClass].name == "Barbarian" && p.Class[leveledClass].level == 20 {
+		if p.Class[leveledClass].Level%4 == 0 || p.Class[leveledClass].Level == 19 {
+			if p.Class[leveledClass].Name == "Barbarian" && p.Class[leveledClass].Level == 20 {
 				p.AbilityScores["Strength"] = updateScores(p.AbilityScores["Strength"], 4)
 				p.AbilityScores["Constitution"] = updateScores(p.AbilityScores["Constitution"], 4)
 			} else {
 				upScores = true
 			}
-		} else if p.Class[leveledClass].name == "Fighter" {
-			if p.Class[leveledClass].level == 6 || p.Class[leveledClass].level == 14 {
+		} else if p.Class[leveledClass].Name == "Fighter" {
+			if p.Class[leveledClass].Level == 6 || p.Class[leveledClass].Level == 14 {
 				upScores = true
 			}
-		} else if p.Class[leveledClass].name == "Rogue" && p.Class[leveledClass].level == 10 {
+		} else if p.Class[leveledClass].Name == "Rogue" && p.Class[leveledClass].Level == 10 {
 			upScores = true
 		}
 	}
@@ -92,13 +92,13 @@ func (p *PlayerCharacter) LevelUp() {
 			updateChaosScores(p, 2)
 		}
 	}
-	p.Hitpoints += rand.Intn(p.Class[leveledClass].hitDie) + 1 // Health increases based on which Class was leveled up.
+	p.Hitpoints += rand.Intn(p.Class[leveledClass].HitDie) + 1 // Health increases based on which Class was leveled up.
 }
 
 // verifyClass ensures that when multiClassing, an already selected Class is not added.
 func verifyClass(p PlayerCharacter, c string) string {
 	for _, pc := range p.Class {
-		if pc.name == c {
+		if pc.Name == c {
 			return verifyClass(p, PickClass())
 		}
 	}

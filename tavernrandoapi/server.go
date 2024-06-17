@@ -3,8 +3,10 @@ package main
 import (
 	//"fmt"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"tavernRando/generator"
 )
 
@@ -20,19 +22,13 @@ func randomHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	//Stuff for testing JSON Conversion
-
-	// generator.PopulateGlobalVars()
-	// player := generator.CreatePlayerCharacter()
-
-	// b, err := json.Marshal(player)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
-	// fmt.Println(string(b))
-
-	http.HandleFunc("/chaos", randomHandler)
-	http.HandleFunc("/optimized", randomHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	// Check if the call was from the command line or API Call
+	if len(os.Args) != 1 {
+		generator.PopulateGlobalVars()
+		fmt.Println(generator.CreatePlayerCharacter())
+	} else {
+		http.HandleFunc("/chaos", randomHandler)
+		http.HandleFunc("/optimized", randomHandler)
+		log.Fatal(http.ListenAndServe(":8080", nil))
+	}
 }

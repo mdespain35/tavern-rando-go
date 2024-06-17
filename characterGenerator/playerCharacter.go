@@ -32,37 +32,37 @@ func (p PlayerCharacter) String() string {
 	return player
 }
 
-// GeneratePlayerClass initializes the p.Class field if needed and then adds a PlayerClass to the slice
-func (p *PlayerCharacter) GeneratePlayerClass() {
+// generatePlayerClass initializes the p.Class field if needed and then adds a PlayerClass to the slice
+func (p *PlayerCharacter) generatePlayerClass() {
 	if p.Class == nil {
 		p.Class = []PlayerClass{}
 	}
 	p.Class = append(p.Class, GenerateClass(verifyClass(*p, PickClass())))
 }
 
-// GenerateAbilityScores generates the ability scores and their modifiers, should only be called once.
-func (p *PlayerCharacter) GenerateAbilityScores() {
+// generateAbilityScores generates the ability scores and their modifiers, should only be called once.
+func (p *PlayerCharacter) generateAbilityScores() {
 	if p.AbilityScores == nil {
 		p.AbilityScores = make(map[string]AbilityScore)
 	}
 	if Optimized {
-		p.OptimizedScores()
+		p.optimizedScores()
 	} else {
-		p.ChaosScores()
+		p.chaosScores()
 	}
 	p.Hitpoints = p.Class[0].HitDie
 }
 
-// LevelUp levels up the Player's character, while also handling the leveling for the Player's Class by using
+// levelUp levels up the Player's character, while also handling the leveling for the Player's Class by using
 // the PlayerClass definition of LevelUp.
-func (p *PlayerCharacter) LevelUp() {
+func (p *PlayerCharacter) levelUp() {
 	p.Level++
 	leveledClass := 0
 	upScores := false // Flag marking if ability score improvements needed.
 
 	// TODO: Add a check to ensure the character has the stats to multiClass otherwise pick a different Class.
 	if rand.Intn(20)+1 == 20 { // Roll a natural 20 to multiClass
-		p.GeneratePlayerClass()
+		p.generatePlayerClass()
 		leveledClass = len(p.Class) - 1
 	} else {
 		if len(p.Class) > 1 {
@@ -105,8 +105,8 @@ func verifyClass(p PlayerCharacter, c string) string {
 	return c
 }
 
-// ChaosScores creates the ability scores for unoptimized characters for a truly random experience.
-func (p *PlayerCharacter) ChaosScores() {
+// chaosScores creates the ability scores for unoptimized characters for a truly random experience.
+func (p *PlayerCharacter) chaosScores() {
 	for _, i := range PlayerStats {
 		newScore := ability()
 		p.AbilityScores[i] = AbilityScore{
@@ -150,8 +150,8 @@ func updateScores(as AbilityScore, bonus int) AbilityScore {
 	return update
 }
 
-// OptimizedScores generates a character that applies the highest rolled stats to the preferred stats of the character's Class.
-func (p *PlayerCharacter) OptimizedScores() {
+// optimizedScores generates a character that applies the highest rolled stats to the preferred stats of the character's Class.
+func (p *PlayerCharacter) optimizedScores() {
 	scores := []int{}
 	for i := 0; i < 6; i++ { // Generate ability scores for sorting.
 		scores = append(scores, ability())
@@ -207,13 +207,13 @@ func updateOptmizeScores(p *PlayerCharacter, leveledClass int) {
 	}
 }
 
-// GenerateLevel is a helper function for if a level is not specified by a user. May remove later.
-func GenerateLevel() int {
+// generateLevel is a helper function for if a level is not specified by a user. May remove later.
+func generateLevel() int {
 	return rand.Intn(20) + 1
 }
 
-// GenerateRace populates the p.Race field by randomly selecting a Race from the Races slice.
-func (p *PlayerCharacter) GenerateRace() {
+// generateRace populates the p.Race field by randomly selecting a Race from the Races slice.
+func (p *PlayerCharacter) generateRace() {
 	p.Race = Races[rand.Intn(len(Races))]
 }
 
@@ -221,12 +221,12 @@ func (p *PlayerCharacter) GenerateRace() {
 func CreatePlayerCharacter() PlayerCharacter {
 	var player PlayerCharacter
 	player.Level = 1
-	player.GenerateRace()
-	player.GeneratePlayerClass()
-	player.GenerateAbilityScores()
+	player.generateRace()
+	player.generatePlayerClass()
+	player.generateAbilityScores()
 
 	for i := 1; i < TargetLevel; i++ {
-		player.LevelUp()
+		player.levelUp()
 	}
 	// Calculate Constitution bonus at the end in case Constitution was increased during leveling.
 	player.Hitpoints += player.AbilityScores["Constitution"].Modifier * player.Level
@@ -238,7 +238,7 @@ func CreatePlayerCharacter() PlayerCharacter {
 func PopulateGlobalVars() {
 	// Assign default values in case call is missing one or more variables or bad args are passed.
 	Optimized = false
-	TargetLevel = GenerateLevel()
+	TargetLevel = generateLevel()
 
 	for i := 1; i < len(os.Args); i++ {
 		if val, err := strconv.Atoi(os.Args[i]); err == nil { // Check if arg is an int.

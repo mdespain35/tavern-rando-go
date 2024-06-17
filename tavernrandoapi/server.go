@@ -11,7 +11,7 @@ import (
 )
 
 func randomHandler(w http.ResponseWriter, r *http.Request) {
-	generator.PopulateGlobalVars()
+	generator.PopulateGlobalVars([]string{r.Header["optimized"][0], r.Header["level"][0]})
 	if r.URL.Path[1:] == "optimized" {
 		generator.Optimized = true
 	}
@@ -24,7 +24,7 @@ func randomHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	// Check if the call was from the command line or API Call
 	if len(os.Args) != 1 {
-		generator.PopulateGlobalVars()
+		generator.PopulateGlobalVars(os.Args[1:])
 		fmt.Println(generator.CreatePlayerCharacter())
 	} else {
 		http.HandleFunc("/chaos", randomHandler)

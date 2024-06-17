@@ -235,12 +235,12 @@ func CreatePlayerCharacter() PlayerCharacter {
 }
 
 // populateGlobalVars is a helper function that reads in input from the CLI and assigns the useful args to the global vars of this program.
-func PopulateGlobalVars() {
+func PopulateGlobalVars(args []string) {
 	// Assign default values in case call is missing one or more variables or bad args are passed.
 	Optimized = false
 	TargetLevel = generateLevel()
 
-	for i := 1; i < len(os.Args); i++ {
+	for i := 0; i < len(args); i++ {
 		if val, err := strconv.Atoi(os.Args[i]); err == nil { // Check if arg is an int.
 			if val > 0 && val <= 20 {
 				TargetLevel = val

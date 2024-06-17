@@ -3,7 +3,6 @@ package generator
 import (
 	"fmt"
 	"math/rand"
-	"os"
 	"slices"
 	"strconv"
 )
@@ -241,11 +240,11 @@ func PopulateGlobalVars(args []string) {
 	TargetLevel = generateLevel()
 
 	for i := 0; i < len(args); i++ {
-		if val, err := strconv.Atoi(os.Args[i]); err == nil { // Check if arg is an int.
+		if val, err := strconv.Atoi(args[i]); err == nil { // Check if arg is an int.
 			if val > 0 && val <= 20 {
 				TargetLevel = val
 			}
-		} else if boolVal, err := strconv.ParseBool(os.Args[i]); err == nil { // Check if arg is a bool.
+		} else if boolVal, err := strconv.ParseBool(args[i]); err == nil { // Check if arg is a bool.
 			Optimized = boolVal
 		}
 	}

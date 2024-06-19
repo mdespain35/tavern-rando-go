@@ -1,24 +1,20 @@
 package main
 
 import (
-	//"fmt"
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"tavernRando/generator"
 
 	"github.com/joho/godotenv"
-	openai "github.com/sashabaranov/go-openai"
 )
 
 func randomHandler(w http.ResponseWriter, r *http.Request) {
-	generator.PopulateGlobalVars([]string{r.Header["optimized"][0], r.Header["level"][0]})
-	if r.URL.Path[1:] == "optimized" {
-		generator.Optimized = true
-	}
+	params, _ := url.ParseQuery(r.URL.RawQuery)
+	generator.PopulateGlobalVars([]string{params["optimized"][0], params["level"][0]})
 	character := generator.CreatePlayerCharacter()
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -32,40 +28,12 @@ func init() {
 }
 
 func main() {
-	openAIToken := os.Getenv("OPEN_AI_KEY")
-	if openAIToken == "" {
-		log.Fatal("openAIToken not set")
-	}
-
-	client := openai.NewClient(openAIToken)
-	resp, err := client.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			Model:     openai.GPT3Dot5Turbo0125,
-			MaxTokens: 50,
-			Messages: []openai.ChatCompletionMessage{
-				{
-					Role:    openai.ChatMessageRoleUser,
-					Content: "Hello!",
-				},
-			},
-		},
-	)
-
-	if err != nil {
-		fmt.Printf("ChatCompletion error: %v\n", err)
-		return
-	}
-
-	fmt.Println(resp.Choices[0].Message.Content)
 	// Check if the call was from the command line or API Call
 	if len(os.Args) != 1 {
 		generator.PopulateGlobalVars(os.Args[1:])
 		fmt.Println(generator.CreatePlayerCharacter())
+	} else {
+		http.HandleFunc("/", randomHandler)
+		log.Fatal(http.ListenAndServe(":8080", nil))
 	}
-	// } else {
-	// 	http.HandleFunc("/chaos", randomHandler)
-	// 	http.HandleFunc("/optimized", randomHandler)
-	// 	log.Fatal(http.ListenAndServe(":8080", nil))
-	// }
 }

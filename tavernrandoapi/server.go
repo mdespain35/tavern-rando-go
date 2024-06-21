@@ -14,8 +14,8 @@ import (
 
 func randomHandler(w http.ResponseWriter, r *http.Request) {
 	params, _ := url.ParseQuery(r.URL.RawQuery)
-	generator.PopulateGlobalVars([]string{params["optimized"][0], params["level"][0]})
-	character := generator.CreatePlayerCharacter()
+	optimized, targetLevel := generator.PopulateGlobalVars([]string{params["optimized"][0], params["level"][0]})
+	character := generator.CreatePlayerCharacter(optimized, targetLevel)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(character)
@@ -30,8 +30,8 @@ func init() {
 func main() {
 	// Check if the call was from the command line or API Call
 	if len(os.Args) != 1 {
-		generator.PopulateGlobalVars(os.Args[1:])
-		fmt.Println(generator.CreatePlayerCharacter())
+		optimized, targetLevel := generator.PopulateGlobalVars(os.Args[1:])
+		fmt.Println(generator.CreatePlayerCharacter(optimized, targetLevel))
 	} else {
 		http.HandleFunc("/", randomHandler)
 		log.Fatal(http.ListenAndServe(":8080", nil))

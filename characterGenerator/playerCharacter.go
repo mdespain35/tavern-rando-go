@@ -18,9 +18,6 @@ type PlayerCharacter struct {
 	Hitpoints     int
 }
 
-var Optimized bool
-var TargetLevel int
-
 func (p PlayerCharacter) String() string {
 	player := ""
 	player += fmt.Sprintf("Player Random\nRace: %s\tLevel: %d\nHitpoints: %d\n", p.Race, p.Level, p.Hitpoints)
@@ -40,11 +37,11 @@ func (p *PlayerCharacter) generatePlayerClass() {
 }
 
 // generateAbilityScores generates the ability scores and their modifiers, should only be called once.
-func (p *PlayerCharacter) generateAbilityScores() {
+func (p *PlayerCharacter) generateAbilityScores(optimized bool) {
 	if p.AbilityScores == nil {
 		p.AbilityScores = make(map[string]AbilityScore)
 	}
-	if Optimized {
+	if optimized {
 		p.optimizedScores()
 	} else {
 		p.chaosScores()
@@ -54,7 +51,7 @@ func (p *PlayerCharacter) generateAbilityScores() {
 
 // levelUp levels up the Player's character, while also handling the leveling for the Player's Class by using
 // the PlayerClass definition of LevelUp.
-func (p *PlayerCharacter) levelUp() {
+func (p *PlayerCharacter) levelUp(optimized bool) {
 	p.Level++
 	leveledClass := 0
 	upScores := false // Flag marking if ability score improvements needed.
@@ -85,14 +82,14 @@ func (p *PlayerCharacter) levelUp() {
 		}
 	}
 	if upScores {
-		if Optimized {
+		if optimized {
 			updateOptmizeScores(p, leveledClass)
 		} else {
 			updateChaosScores(p, 2)
 		}
 	}
 	rolledHP := rand.Intn(p.Class[leveledClass].HitDie) + 1 // Health increases based on which Class was leveled up.
-	if Optimized {                                          // Optimized makes it so the roll is never less than half the hit die
+	if optimized {                                          // Optimized makes it so the roll is never less than half the hit die
 		if rolledHP < p.Class[leveledClass].HitDie/2 {
 			rolledHP = p.Class[leveledClass].HitDie / 2
 		}
@@ -228,15 +225,15 @@ func (p *PlayerCharacter) generateRace() {
 }
 
 // CreatePlayerCharacter puts all of the pieces of the sandwich together and returns a PlayerCharacter object.
-func CreatePlayerCharacter() PlayerCharacter {
+func CreatePlayerCharacter(optimized bool, targetLevel int) PlayerCharacter {
 	var player PlayerCharacter
 	player.Level = 1
 	player.generateRace()
 	player.generatePlayerClass()
-	player.generateAbilityScores()
+	player.generateAbilityScores(optimized)
 
-	for i := 1; i < TargetLevel; i++ {
-		player.levelUp()
+	for i := 1; i < targetLevel; i++ {
+		player.levelUp(optimized)
 	}
 	// Calculate Constitution bonus at the end in case Constitution was increased during leveling.
 	player.Hitpoints += player.AbilityScores["Constitution"].Modifier * player.Level
@@ -245,18 +242,19 @@ func CreatePlayerCharacter() PlayerCharacter {
 }
 
 // populateGlobalVars is a helper function that reads in input from the CLI and assigns the useful args to the global vars of this program.
-func PopulateGlobalVars(args []string) {
+func PopulateGlobalVars(args []string) (bool, int) {
 	// Assign default values in case call is missing one or more variables or bad args are passed.
-	Optimized = false
-	TargetLevel = generateLevel()
+	optimized := false
+	targetLevel := generateLevel()
 
 	for i := 0; i < len(args); i++ {
 		if val, err := strconv.Atoi(args[i]); err == nil { // Check if arg is an int.
 			if val > 0 && val <= 20 {
-				TargetLevel = val
+				targetLevel = val
 			}
 		} else if boolVal, err := strconv.ParseBool(args[i]); err == nil { // Check if arg is a bool.
-			Optimized = boolVal
+			optimized = boolVal
 		}
 	}
+	return optimized, targetLevel
 }

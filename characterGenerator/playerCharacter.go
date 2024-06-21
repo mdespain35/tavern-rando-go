@@ -91,7 +91,18 @@ func (p *PlayerCharacter) levelUp() {
 			updateChaosScores(p, 2)
 		}
 	}
-	p.Hitpoints += rand.Intn(p.Class[leveledClass].HitDie) + 1 // Health increases based on which Class was leveled up.
+	rolledHP := rand.Intn(p.Class[leveledClass].HitDie) + 1 // Health increases based on which Class was leveled up.
+	if Optimized {                                          // Optimized makes it so the roll is never less than half the hit die
+		if rolledHP < p.Class[leveledClass].HitDie/2 {
+			rolledHP = p.Class[leveledClass].HitDie / 2
+		}
+	} else { // Ensures that the player gets at least 1 HP per level for negative Con mods.
+		if rolledHP+p.AbilityScores["Constitution"].Modifier <= 0 {
+			// This gets rectified later when the Con modifier gets added in to the player's HP.
+			rolledHP = 1 - p.AbilityScores["Constitution"].Modifier
+		}
+	}
+	p.Hitpoints += rolledHP
 }
 
 // verifyClass ensures that when multiClassing, an already selected Class is not added.

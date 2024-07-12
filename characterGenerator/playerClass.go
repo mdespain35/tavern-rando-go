@@ -19,6 +19,7 @@ var ClassOptions = []string{
 	"Sorcerer",
 	"Warlock",
 	"Wizard",
+	"Blood Hunter",
 }
 
 type PlayerClass struct {
@@ -99,6 +100,24 @@ func GenerateClass(class string) PlayerClass {
 			"College of Whispers",
 			"College of Creation",
 			"College of Eloquence",
+		}
+	case "Blood Hunter":
+		p.subClassLevel = 3
+		p.HitDie = 10
+		if rand.Intn(2) == 0 {
+			p.preferredStats = []string{
+				"Strength", "Intelligence",
+			}
+		} else {
+			p.preferredStats = []string{
+				"Dexterity", "Intelligence",
+			}
+		}
+		p.subclassOptions = []string{
+			"Order of the Ghostslayer",
+			"Order of the Lycan",
+			"Order of the Mutant",
+			"Order of the Profane Soul",
 		}
 	case "Cleric":
 		p.subClassLevel = 1

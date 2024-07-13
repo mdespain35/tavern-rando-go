@@ -54,13 +54,18 @@ func (p *PlayerCharacter) generateAbilityScores(optimized bool) {
 func (p *PlayerCharacter) levelUp(optimized bool) {
 	p.Level++
 	leveledClass := 0
-	upScores := false // Flag marking if ability score improvements needed.
+	upScores := false   // Flag marking if ability score improvements needed.
+	multiClass := false // Flag marking if a multiclass level occurred.
 
-	// TODO: Add a check to ensure the character has the stats to multiClass otherwise pick a different Class.
 	if rand.Intn(20)+1 == 20 { // Roll a natural 20 to multiClass
-		p.generatePlayerClass()
-		leveledClass = len(p.Class) - 1
-	} else {
+		mClassOptions := generatePossibleMultiClass(*p)
+		if len(mClassOptions) > 0 { // Check if there are even any possible multiclass options
+			p.Class = append(p.Class, GenerateClass(mClassOptions[rand.Intn(len(mClassOptions))]))
+			leveledClass = len(p.Class) - 1
+			multiClass = true
+		}
+	}
+	if !multiClass {
 		if len(p.Class) > 1 {
 			leveledClass = rand.Intn(len(p.Class))
 		}
@@ -110,6 +115,70 @@ func verifyClass(p PlayerCharacter, c string) string {
 		}
 	}
 	return c
+}
+
+// verifyMultiClassReq ensures that the character rolled has the stats required for the class
+// they are attempting to multiclass into.
+func verifyMultiClassReq(p PlayerCharacter, c string) bool {
+	able := false
+
+	switch c {
+	case "Barbarian":
+		if p.AbilityScores["Strength"].Score >= 13 {
+			able = true
+		}
+	case "Bard", "Sorcerer", "Warlock":
+		if p.AbilityScores["Charisma"].Score >= 13 {
+			able = true
+		}
+	case "Cleric", "Druid":
+		if p.AbilityScores["Wisdom"].Score >= 13 {
+			able = true
+		}
+	case "Rogue":
+		if p.AbilityScores["Dexterity"].Score >= 13 {
+			able = true
+		}
+	case "Wizard", "Artificer":
+		if p.AbilityScores["Intelligence"].Score >= 13 {
+			able = true
+		}
+	case "Fighter":
+		if p.AbilityScores["Strength"].Score >= 13 || p.AbilityScores["Dexterity"].Score >= 13 {
+			able = true
+		}
+	case "Monk", "Ranger":
+		if p.AbilityScores["Wisdom"].Score >= 13 && p.AbilityScores["Dexterity"].Score >= 13 {
+			able = true
+		}
+	case "Paladin":
+		if p.AbilityScores["Strength"].Score >= 13 && p.AbilityScores["Charisma"].Score >= 13 {
+			able = true
+		}
+	}
+
+	return able
+}
+
+// generateMultiClass returns a slice of strings of classes that are possible for the character to multiclass into.
+func generatePossibleMultiClass(p PlayerCharacter) []string {
+	possibleClasses := []string{}
+
+	for _, c := range ClassOptions {
+		if verifyMultiClassReq(p, c) {
+			exists := false
+			for _, pc := range p.Class {
+				if pc.Name == c {
+					exists = true
+					break
+				}
+			}
+			if !exists {
+				possibleClasses = append(possibleClasses, c)
+			}
+		}
+	}
+	return possibleClasses
 }
 
 // chaosScores creates the ability scores for unoptimized characters for a truly random experience.

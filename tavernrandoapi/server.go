@@ -10,6 +10,7 @@ import (
 	"tavernRando/generator"
 
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 )
 
 func randomHandler(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +34,9 @@ func main() {
 		optimized, targetLevel := generator.PopulateGlobalVars(os.Args[1:])
 		fmt.Println(generator.CreatePlayerCharacter(optimized, targetLevel))
 	} else {
-		http.HandleFunc("/", randomHandler)
-		log.Fatal(http.ListenAndServe(":8080", nil))
+		mux := http.NewServeMux()
+		mux.HandleFunc("/", randomHandler)
+		handler := cors.Default().Handler(mux)
+		log.Fatal(http.ListenAndServe(":8080", handler))
 	}
 }

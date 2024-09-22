@@ -283,7 +283,7 @@ func updateOptmizeScores(p *PlayerCharacter, leveledClass int) {
 	}
 }
 
-// generateLevel is a helper function for if a level is not specified by a user. May remove later.
+// generateLevel is a helper function for if a level is not specified by a user.
 func generateLevel() int {
 	return rand.Intn(20) + 1
 }

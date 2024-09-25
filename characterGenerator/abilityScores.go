@@ -15,6 +15,11 @@ var PlayerStats = []string{
 	"Charisma",
 }
 
+type AbilityScore struct {
+	Score    int
+	Modifier int
+}
+
 type AbilityScores map[string]AbilityScore
 
 // Stringer method
@@ -24,11 +29,6 @@ func (aS AbilityScores) String() string {
 		statBlock += fmt.Sprintf("%s\n%s", scores, aS[scores].String())
 	}
 	return statBlock
-}
-
-type AbilityScore struct {
-	Score    int
-	Modifier int
 }
 
 // Stringer method

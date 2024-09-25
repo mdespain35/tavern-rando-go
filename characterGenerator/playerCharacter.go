@@ -10,8 +10,8 @@ import (
 // TODO: Implement the rest of the PlayerCharacter fields
 type PlayerCharacter struct {
 	// name          string
-	Race string
-	// background    string
+	Race          string
+	background    Background
 	Level         int
 	Class         []PlayerClass
 	AbilityScores AbilityScores
@@ -20,7 +20,7 @@ type PlayerCharacter struct {
 
 func (p PlayerCharacter) String() string {
 	player := ""
-	player += fmt.Sprintf("Player Random\nRace: %s\tLevel: %d\nHitpoints: %d\n", p.Race, p.Level, p.Hitpoints)
+	player += fmt.Sprintf("Player Random\nRace: %s\tBackground: %s\nLevel: %d\tHitpoints: %d\n", p.Race, p.background.name, p.Level, p.Hitpoints)
 	for _, c := range p.Class {
 		player += c.String()
 	}
@@ -293,6 +293,11 @@ func (p *PlayerCharacter) generateRace() {
 	p.Race = Races[rand.Intn(len(Races))]
 }
 
+// generateBackground populates the p.background field by randomly selecting a background from BackgroundOptions.
+func (p *PlayerCharacter) generateBackground() {
+	p.background = BackgroundOptions[rand.Intn(len(BackgroundOptions))]
+}
+
 // CreatePlayerCharacter puts all of the pieces of the sandwich together and returns a PlayerCharacter object.
 func CreatePlayerCharacter(optimized bool, targetLevel int) PlayerCharacter {
 	var player PlayerCharacter
@@ -300,6 +305,7 @@ func CreatePlayerCharacter(optimized bool, targetLevel int) PlayerCharacter {
 	player.generateRace()
 	player.generatePlayerClass()
 	player.generateAbilityScores(optimized)
+	player.generateBackground()
 
 	for i := 1; i < targetLevel; i++ {
 		player.levelUp(optimized)

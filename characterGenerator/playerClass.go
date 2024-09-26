@@ -23,25 +23,25 @@ var ClassOptions = []string{
 }
 
 type PlayerClass struct {
-	name            string
-	subClass        string
-	level           int
+	Name            string
+	SubClass        string
+	Level           int
 	subClassLevel   int
-	hitDie          int
+	HitDie          int
 	preferredStats  []string
 	subclassOptions []string
 }
 
 // LevelUp levels up the PlayerClass and assigns a subclass if the appropriate level is reached.
 func (pc *PlayerClass) LevelUp() {
-	pc.level++
-	if pc.level == pc.subClassLevel {
-		pc.subClass = chooseSubclass(pc.subclassOptions)
+	pc.Level++
+	if pc.Level == pc.subClassLevel {
+		pc.SubClass = chooseSubclass(pc.subclassOptions)
 	}
 }
 
 func (pc PlayerClass) String() string {
-	return fmt.Sprintf("%s,%s\t%d\n", pc.name, pc.subClass, pc.level)
+	return fmt.Sprintf("%s,%s\t%d\n", pc.Name, pc.SubClass, pc.Level)
 }
 
 // chooseSubclass returns a random subclass from the PlayerClass's subclassOptions field.
@@ -57,14 +57,14 @@ func PickClass() string {
 // GenerateClass populates a PlayerClass object based on a string and then returns the populated object.
 func GenerateClass(class string) PlayerClass {
 	p := PlayerClass{
-		name:     class,
-		subClass: "",
-		level:    1,
+		Name:     class,
+		SubClass: "",
+		Level:    1,
 	}
-	switch p.name {
+	switch p.Name {
 	case "Artificer":
 		p.subClassLevel = 3
-		p.hitDie = 8
+		p.HitDie = 8
 		p.preferredStats = []string{
 			"Intelligence", "Dexterity",
 		}
@@ -73,7 +73,7 @@ func GenerateClass(class string) PlayerClass {
 		}
 	case "Barbarian":
 		p.subClassLevel = 3
-		p.hitDie = 12
+		p.HitDie = 12
 		p.preferredStats = []string{
 			"Strength", "Constitution",
 		}
@@ -88,7 +88,7 @@ func GenerateClass(class string) PlayerClass {
 		}
 	case "Bard":
 		p.subClassLevel = 3
-		p.hitDie = 8
+		p.HitDie = 8
 		p.preferredStats = []string{
 			"Charisma", "Constitution", "Dexterity",
 		}
@@ -103,7 +103,7 @@ func GenerateClass(class string) PlayerClass {
 		}
 	case "Blood Hunter":
 		p.subClassLevel = 3
-		p.hitDie = 10
+		p.HitDie = 10
 		if rand.Intn(2) == 0 {
 			p.preferredStats = []string{
 				"Strength", "Intelligence",
@@ -121,7 +121,7 @@ func GenerateClass(class string) PlayerClass {
 		}
 	case "Cleric":
 		p.subClassLevel = 1
-		p.hitDie = 8
+		p.HitDie = 8
 		p.preferredStats = []string{
 			"Wisdom", "Strength", "Constitution",
 		}
@@ -141,7 +141,7 @@ func GenerateClass(class string) PlayerClass {
 		}
 	case "Druid":
 		p.subClassLevel = 2
-		p.hitDie = 8
+		p.HitDie = 8
 		p.preferredStats = []string{
 			"Wisdom", "Constitution",
 		}
@@ -156,7 +156,7 @@ func GenerateClass(class string) PlayerClass {
 		}
 	case "Fighter":
 		p.subClassLevel = 3
-		p.hitDie = 10
+		p.HitDie = 10
 		if rand.Intn(2) == 0 {
 			p.preferredStats = []string{
 				"Strength", "Constitution",
@@ -178,7 +178,7 @@ func GenerateClass(class string) PlayerClass {
 		}
 	case "Monk":
 		p.subClassLevel = 3
-		p.hitDie = 8
+		p.HitDie = 8
 		p.preferredStats = []string{
 			"Dexterity", "Wisdom",
 		}
@@ -194,7 +194,7 @@ func GenerateClass(class string) PlayerClass {
 		}
 	case "Paladin":
 		p.subClassLevel = 3
-		p.hitDie = 10
+		p.HitDie = 10
 		p.preferredStats = []string{
 			"Strength", "Charisma",
 		}
@@ -209,7 +209,7 @@ func GenerateClass(class string) PlayerClass {
 		}
 	case "Ranger":
 		p.subClassLevel = 3
-		p.hitDie = 10
+		p.HitDie = 10
 		p.preferredStats = []string{
 			"Dexterity", "Wisdom",
 		}
@@ -224,7 +224,7 @@ func GenerateClass(class string) PlayerClass {
 		}
 	case "Rogue":
 		p.subClassLevel = 3
-		p.hitDie = 8
+		p.HitDie = 8
 		if rand.Intn(2) == 0 {
 			p.preferredStats = []string{
 				"Dexterity", "Intelligence",
@@ -247,7 +247,7 @@ func GenerateClass(class string) PlayerClass {
 		}
 	case "Sorcerer":
 		p.subClassLevel = 1
-		p.hitDie = 6
+		p.HitDie = 6
 		p.preferredStats = []string{
 			"Charisma", "Constitution",
 		}
@@ -262,7 +262,7 @@ func GenerateClass(class string) PlayerClass {
 		}
 	case "Warlock":
 		p.subClassLevel = 1
-		p.hitDie = 8
+		p.HitDie = 8
 		p.preferredStats = []string{
 			"Charisma", "Constitution",
 		}
@@ -277,7 +277,7 @@ func GenerateClass(class string) PlayerClass {
 		}
 	case "Wizard":
 		p.subClassLevel = 2
-		p.hitDie = 6
+		p.HitDie = 6
 		if rand.Intn(2) == 0 {
 			p.preferredStats = []string{
 				"Intelligence", "Dexterity",
@@ -303,7 +303,7 @@ func GenerateClass(class string) PlayerClass {
 	}
 
 	if p.subClassLevel == 1 {
-		p.subClass = chooseSubclass(p.subclassOptions)
+		p.SubClass = chooseSubclass(p.subclassOptions)
 	}
 
 	return p

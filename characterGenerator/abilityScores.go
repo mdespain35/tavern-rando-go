@@ -16,8 +16,8 @@ var PlayerStats = []string{
 }
 
 type AbilityScore struct {
-	score    int
-	modifier int
+	Score    int
+	Modifier int
 }
 
 type AbilityScores map[string]AbilityScore
@@ -33,17 +33,17 @@ func (aS AbilityScores) String() string {
 
 // Stringer method
 func (a AbilityScore) String() string {
-	return fmt.Sprintf("Score: %d\tModifier: %d\n", a.score, a.modifier)
+	return fmt.Sprintf("Score: %d\tModifier: %d\n", a.Score, a.Modifier)
 }
 
 // IncreaseAbilityScore takes an int and increases the ability score.
 func (a *AbilityScore) IncreaseAbilityScore(increase int) {
-	a.score += increase
+	a.Score += increase
 }
 
 // UpdateModifier calculates the change in the modifier after an ability score change has occurred.
 func (a *AbilityScore) UpdateModifier() {
-	a.modifier = modifier(a.score)
+	a.Modifier = modifier(a.Score)
 }
 
 // modifier calculates the ability score's modifier which determines the bonus/penalty for that ability.

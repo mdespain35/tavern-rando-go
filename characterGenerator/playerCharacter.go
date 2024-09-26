@@ -10,49 +10,49 @@ import (
 // TODO: Implement the rest of the PlayerCharacter fields
 type PlayerCharacter struct {
 	// name          string
-	Race          string
+	race          string
 	background    Background
-	Level         int
-	Class         []PlayerClass
-	AbilityScores AbilityScores
-	Hitpoints     int
+	level         int
+	class         []PlayerClass
+	abilityScores AbilityScores
+	hitPoints     int
 }
 
 func (p PlayerCharacter) String() string {
 	player := ""
-	player += fmt.Sprintf("Player Random\nRace: %s\tBackground: %s\nLevel: %d\tHitpoints: %d\n", p.Race, p.background.name, p.Level, p.Hitpoints)
-	for _, c := range p.Class {
+	player += fmt.Sprintf("Player Random\nRace: %s\tBackground: %s\nLevel: %d\tHitpoints: %d\n", p.race, p.background.name, p.level, p.hitPoints)
+	for _, c := range p.class {
 		player += c.String()
 	}
-	player += p.AbilityScores.String()
+	player += p.abilityScores.String()
 	return player
 }
 
 // generatePlayerClass initializes the p.Class field if needed and then adds a PlayerClass to the slice
 func (p *PlayerCharacter) generatePlayerClass() {
-	if p.Class == nil {
-		p.Class = []PlayerClass{}
+	if p.class == nil {
+		p.class = []PlayerClass{}
 	}
-	p.Class = append(p.Class, GenerateClass(verifyClass(*p, PickClass())))
+	p.class = append(p.class, GenerateClass(verifyClass(*p, PickClass())))
 }
 
 // generateAbilityScores generates the ability scores and their modifiers, should only be called once.
 func (p *PlayerCharacter) generateAbilityScores(optimized bool) {
-	if p.AbilityScores == nil {
-		p.AbilityScores = make(map[string]AbilityScore)
+	if p.abilityScores == nil {
+		p.abilityScores = make(map[string]AbilityScore)
 	}
 	if optimized {
 		p.optimizedScores()
 	} else {
 		p.chaosScores()
 	}
-	p.Hitpoints = p.Class[0].HitDie
+	p.hitPoints = p.class[0].hitDie
 }
 
 // levelUp levels up the Player's character, while also handling the leveling for the Player's Class by using
 // the PlayerClass definition of LevelUp.
 func (p *PlayerCharacter) levelUp(optimized bool) {
-	p.Level++
+	p.level++
 	leveledClass := 0
 	upScores := false   // Flag marking if ability score improvements needed.
 	multiClass := false // Flag marking if a multiclass level occurred.
@@ -60,29 +60,29 @@ func (p *PlayerCharacter) levelUp(optimized bool) {
 	if rand.Intn(20)+1 == 20 { // Roll a natural 20 to multiClass
 		mClassOptions := generatePossibleMultiClass(*p)
 		if len(mClassOptions) > 0 { // Check if there are even any possible multiclass options
-			p.Class = append(p.Class, GenerateClass(mClassOptions[rand.Intn(len(mClassOptions))]))
-			leveledClass = len(p.Class) - 1
+			p.class = append(p.class, GenerateClass(mClassOptions[rand.Intn(len(mClassOptions))]))
+			leveledClass = len(p.class) - 1
 			multiClass = true
 		}
 	}
 	if !multiClass {
-		if len(p.Class) > 1 {
-			leveledClass = rand.Intn(len(p.Class))
+		if len(p.class) > 1 {
+			leveledClass = rand.Intn(len(p.class))
 		}
-		p.Class[leveledClass].LevelUp()
+		p.class[leveledClass].LevelUp()
 		// Block checking if an ability score improvement is needed.
-		if p.Class[leveledClass].Level%4 == 0 || p.Class[leveledClass].Level == 19 {
-			if p.Class[leveledClass].Name == "Barbarian" && p.Class[leveledClass].Level == 20 {
-				p.AbilityScores["Strength"] = updateScores(p.AbilityScores["Strength"], 4)
-				p.AbilityScores["Constitution"] = updateScores(p.AbilityScores["Constitution"], 4)
+		if p.class[leveledClass].level%4 == 0 || p.class[leveledClass].level == 19 {
+			if p.class[leveledClass].name == "Barbarian" && p.class[leveledClass].level == 20 {
+				p.abilityScores["Strength"] = updateScores(p.abilityScores["Strength"], 4)
+				p.abilityScores["Constitution"] = updateScores(p.abilityScores["Constitution"], 4)
 			} else {
 				upScores = true
 			}
-		} else if p.Class[leveledClass].Name == "Fighter" {
-			if p.Class[leveledClass].Level == 6 || p.Class[leveledClass].Level == 14 {
+		} else if p.class[leveledClass].name == "Fighter" {
+			if p.class[leveledClass].level == 6 || p.class[leveledClass].level == 14 {
 				upScores = true
 			}
-		} else if p.Class[leveledClass].Name == "Rogue" && p.Class[leveledClass].Level == 10 {
+		} else if p.class[leveledClass].name == "Rogue" && p.class[leveledClass].level == 10 {
 			upScores = true
 		}
 	}
@@ -93,24 +93,24 @@ func (p *PlayerCharacter) levelUp(optimized bool) {
 			updateChaosScores(p, 2)
 		}
 	}
-	rolledHP := rand.Intn(p.Class[leveledClass].HitDie) + 1 // Health increases based on which Class was leveled up.
+	rolledHP := rand.Intn(p.class[leveledClass].hitDie) + 1 // Health increases based on which Class was leveled up.
 	if optimized {                                          // Optimized makes it so the roll is never less than half the hit die
-		if rolledHP < p.Class[leveledClass].HitDie/2 {
-			rolledHP = p.Class[leveledClass].HitDie / 2
+		if rolledHP < p.class[leveledClass].hitDie/2 {
+			rolledHP = p.class[leveledClass].hitDie / 2
 		}
 	} else { // Ensures that the player gets at least 1 HP per level for negative Con mods.
-		if rolledHP+p.AbilityScores["Constitution"].Modifier <= 0 {
+		if rolledHP+p.abilityScores["Constitution"].modifier <= 0 {
 			// This gets rectified later when the Con modifier gets added in to the player's HP.
-			rolledHP = 1 - p.AbilityScores["Constitution"].Modifier
+			rolledHP = 1 - p.abilityScores["Constitution"].modifier
 		}
 	}
-	p.Hitpoints += rolledHP
+	p.hitPoints += rolledHP
 }
 
 // verifyClass ensures that when multiClassing, an already selected Class is not added.
 func verifyClass(p PlayerCharacter, c string) string {
-	for _, pc := range p.Class {
-		if pc.Name == c {
+	for _, pc := range p.class {
+		if pc.name == c {
 			return verifyClass(p, PickClass())
 		}
 	}
@@ -124,35 +124,35 @@ func verifyMultiClassReq(p PlayerCharacter, c string) bool {
 
 	switch c {
 	case "Barbarian":
-		if p.AbilityScores["Strength"].Score >= 13 {
+		if p.abilityScores["Strength"].score >= 13 {
 			able = true
 		}
 	case "Bard", "Sorcerer", "Warlock":
-		if p.AbilityScores["Charisma"].Score >= 13 {
+		if p.abilityScores["Charisma"].score >= 13 {
 			able = true
 		}
 	case "Cleric", "Druid":
-		if p.AbilityScores["Wisdom"].Score >= 13 {
+		if p.abilityScores["Wisdom"].score >= 13 {
 			able = true
 		}
 	case "Rogue":
-		if p.AbilityScores["Dexterity"].Score >= 13 {
+		if p.abilityScores["Dexterity"].score >= 13 {
 			able = true
 		}
 	case "Wizard", "Artificer":
-		if p.AbilityScores["Intelligence"].Score >= 13 {
+		if p.abilityScores["Intelligence"].score >= 13 {
 			able = true
 		}
 	case "Fighter":
-		if p.AbilityScores["Strength"].Score >= 13 || p.AbilityScores["Dexterity"].Score >= 13 {
+		if p.abilityScores["Strength"].score >= 13 || p.abilityScores["Dexterity"].score >= 13 {
 			able = true
 		}
 	case "Monk", "Ranger":
-		if p.AbilityScores["Wisdom"].Score >= 13 && p.AbilityScores["Dexterity"].Score >= 13 {
+		if p.abilityScores["Wisdom"].score >= 13 && p.abilityScores["Dexterity"].score >= 13 {
 			able = true
 		}
 	case "Paladin":
-		if p.AbilityScores["Strength"].Score >= 13 && p.AbilityScores["Charisma"].Score >= 13 {
+		if p.abilityScores["Strength"].score >= 13 && p.abilityScores["Charisma"].score >= 13 {
 			able = true
 		}
 	}
@@ -167,8 +167,8 @@ func generatePossibleMultiClass(p PlayerCharacter) []string {
 	for _, c := range ClassOptions {
 		if verifyMultiClassReq(p, c) {
 			exists := false
-			for _, pc := range p.Class {
-				if pc.Name == c {
+			for _, pc := range p.class {
+				if pc.name == c {
 					exists = true
 					break
 				}
@@ -185,9 +185,9 @@ func generatePossibleMultiClass(p PlayerCharacter) []string {
 func (p *PlayerCharacter) chaosScores() {
 	for _, i := range PlayerStats {
 		newScore := ability()
-		p.AbilityScores[i] = AbilityScore{
-			Score:    newScore,
-			Modifier: modifier(newScore),
+		p.abilityScores[i] = AbilityScore{
+			score:    newScore,
+			modifier: modifier(newScore),
 		}
 	}
 	chaosRacialBonus(p)
@@ -198,7 +198,7 @@ func chaosRacialBonus(p *PlayerCharacter) {
 	// Randomized Racial bonus
 	for i := 2; i > 0; i-- {
 		bonus := rand.Intn(len(PlayerStats))
-		p.AbilityScores[PlayerStats[bonus]] = updateScores(p.AbilityScores[PlayerStats[bonus]], i)
+		p.abilityScores[PlayerStats[bonus]] = updateScores(p.abilityScores[PlayerStats[bonus]], i)
 	}
 }
 
@@ -208,11 +208,11 @@ func updateChaosScores(p *PlayerCharacter, point int) {
 	points := point
 	for points > 0 {
 		bonus := rand.Intn(len(PlayerStats))
-		if p.AbilityScores[PlayerStats[bonus]].Score+points < 20 {
-			p.AbilityScores[PlayerStats[bonus]] = updateScores(p.AbilityScores[PlayerStats[bonus]], points)
+		if p.abilityScores[PlayerStats[bonus]].score+points < 20 {
+			p.abilityScores[PlayerStats[bonus]] = updateScores(p.abilityScores[PlayerStats[bonus]], points)
 			points -= points
-		} else if p.AbilityScores[PlayerStats[bonus]].Score < 20 {
-			p.AbilityScores[PlayerStats[bonus]] = updateScores(p.AbilityScores[PlayerStats[bonus]], 1)
+		} else if p.abilityScores[PlayerStats[bonus]].score < 20 {
+			p.abilityScores[PlayerStats[bonus]] = updateScores(p.abilityScores[PlayerStats[bonus]], 1)
 			points--
 		}
 	}
@@ -234,19 +234,19 @@ func (p *PlayerCharacter) optimizedScores() {
 	}
 	slices.Sort(scores)
 	slices.Reverse(scores)
-	for i := 0; i < len(p.Class[0].preferredStats); i++ { // Assigning highest rolls to preferred stats for level 1 Class.
-		p.AbilityScores[p.Class[0].preferredStats[i]] = AbilityScore{
-			Score:    scores[i],
-			Modifier: modifier(scores[i]),
+	for i := 0; i < len(p.class[0].preferredStats); i++ { // Assigning highest rolls to preferred stats for level 1 Class.
+		p.abilityScores[p.class[0].preferredStats[i]] = AbilityScore{
+			score:    scores[i],
+			modifier: modifier(scores[i]),
 		}
 	}
 
-	for j := len(p.Class[0].preferredStats); j < len(scores); j++ {
+	for j := len(p.class[0].preferredStats); j < len(scores); j++ {
 		for _, a := range PlayerStats {
-			if _, ok := p.AbilityScores[a]; !ok { // Fill the ability score if it has not been populated yet.
-				p.AbilityScores[a] = AbilityScore{
-					Score:    scores[j],
-					Modifier: modifier(scores[j]),
+			if _, ok := p.abilityScores[a]; !ok { // Fill the ability score if it has not been populated yet.
+				p.abilityScores[a] = AbilityScore{
+					score:    scores[j],
+					modifier: modifier(scores[j]),
 				}
 				break
 			}
@@ -257,19 +257,19 @@ func (p *PlayerCharacter) optimizedScores() {
 
 // optimizedRacialBonus assigns the racial bonus to the preferred stats of the Character's Class.
 func optimizeRacialBonus(p *PlayerCharacter) {
-	p.AbilityScores[p.Class[0].preferredStats[0]] = updateScores(p.AbilityScores[p.Class[0].preferredStats[0]], 2)
-	p.AbilityScores[p.Class[0].preferredStats[1]] = updateScores(p.AbilityScores[p.Class[0].preferredStats[1]], 1)
+	p.abilityScores[p.class[0].preferredStats[0]] = updateScores(p.abilityScores[p.class[0].preferredStats[0]], 2)
+	p.abilityScores[p.class[0].preferredStats[1]] = updateScores(p.abilityScores[p.class[0].preferredStats[1]], 1)
 }
 
 // updateOptimizedScores prioritizes the preferred stats of the leveled Class for the ability score improvement.
 func updateOptmizeScores(p *PlayerCharacter, leveledClass int) {
 	points := 2
-	for _, a := range p.Class[leveledClass].preferredStats {
-		if p.AbilityScores[a].Score+points < 20 {
-			p.AbilityScores[a] = updateScores(p.AbilityScores[a], points)
+	for _, a := range p.class[leveledClass].preferredStats {
+		if p.abilityScores[a].score+points < 20 {
+			p.abilityScores[a] = updateScores(p.abilityScores[a], points)
 			points -= points
-		} else if p.AbilityScores[a].Score < 20 {
-			p.AbilityScores[a] = updateScores(p.AbilityScores[a], 1)
+		} else if p.abilityScores[a].score < 20 {
+			p.abilityScores[a] = updateScores(p.abilityScores[a], 1)
 			points--
 		}
 		if points == 0 { // Break out of loop as soon as bonus is awarded.
@@ -290,7 +290,7 @@ func generateLevel() int {
 
 // generateRace populates the p.Race field by randomly selecting a Race from the Races slice.
 func (p *PlayerCharacter) generateRace() {
-	p.Race = Races[rand.Intn(len(Races))]
+	p.race = Races[rand.Intn(len(Races))]
 }
 
 // generateBackground populates the p.background field by randomly selecting a background from BackgroundOptions.
@@ -301,7 +301,7 @@ func (p *PlayerCharacter) generateBackground() {
 // CreatePlayerCharacter puts all of the pieces of the sandwich together and returns a PlayerCharacter object.
 func CreatePlayerCharacter(optimized bool, targetLevel int) PlayerCharacter {
 	var player PlayerCharacter
-	player.Level = 1
+	player.level = 1
 	player.generateRace()
 	player.generatePlayerClass()
 	player.generateAbilityScores(optimized)
@@ -311,7 +311,7 @@ func CreatePlayerCharacter(optimized bool, targetLevel int) PlayerCharacter {
 		player.levelUp(optimized)
 	}
 	// Calculate Constitution bonus at the end in case Constitution was increased during leveling.
-	player.Hitpoints += player.AbilityScores["Constitution"].Modifier * player.Level
+	player.hitPoints += player.abilityScores["Constitution"].modifier * player.level
 
 	return player
 }

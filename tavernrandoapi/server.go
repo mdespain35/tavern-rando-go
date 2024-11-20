@@ -35,8 +35,15 @@ func main() {
 		fmt.Println(generator.CreatePlayerCharacter(optimized, targetLevel))
 	} else {
 		mux := http.NewServeMux()
+		port := os.Getenv("PORT")
+		if port == "" {
+			port = "8080"
+			log.Printf("defaulting to port %s", port)
+		}
 		mux.HandleFunc("/", randomHandler)
 		handler := cors.Default().Handler(mux)
-		log.Fatal(http.ListenAndServe(":8080", handler))
+		if err := http.ListenAndServe(":"+port, handler); err != nil {
+			log.Fatal(err)
+		}
 	}
 }

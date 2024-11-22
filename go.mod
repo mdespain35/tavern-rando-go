@@ -2,7 +2,7 @@ module tavernRando/generatorAPI
 
 go 1.22.0
 
-replace tavernRando/generator => ../characterGenerator
+replace tavernRando/generator => ./characterGenerator
 
 require (
 	github.com/joho/godotenv v1.5.1

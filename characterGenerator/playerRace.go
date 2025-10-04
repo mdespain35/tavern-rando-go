@@ -1,4 +1,4 @@
-package generator
+package characterGenerator
 
 // TODO: Potentially rename file and just store all constant values in this file.
 var Races = []string{

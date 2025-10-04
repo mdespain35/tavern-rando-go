@@ -1,4 +1,4 @@
-package generator
+package characterGenerator
 
 import (
 	"fmt"
@@ -10,12 +10,17 @@ import (
 // TODO: Implement the rest of the PlayerCharacter fields
 type PlayerCharacter struct {
 	// name          string
-	Race          string
-	Background    Background
-	Level         int
-	Class         []PlayerClass
-	AbilityScores AbilityScores
-	HitPoints     int
+	Race             string
+	Background       Background
+	Level            int
+	Class            []PlayerClass
+	AbilityScores    AbilityScores
+	HitPoints        int
+	ProficiencyBonus int
+	ToolProf         []string
+	WeaponProf       []string
+	ArmorProf        []string
+	SkillProf        []Skill
 }
 
 func (p PlayerCharacter) String() string {
@@ -104,6 +109,11 @@ func (p *PlayerCharacter) levelUp(optimized bool) {
 			rolledHP = 1 - p.AbilityScores["Constitution"].Modifier
 		}
 	}
+
+	if p.Level == 5 || p.Level == 9 || p.Level == 13 || p.Level == 17 {
+		p.ProficiencyBonus++
+	}
+
 	p.HitPoints += rolledHP
 }
 
@@ -302,6 +312,7 @@ func (p *PlayerCharacter) generateBackground() {
 func CreatePlayerCharacter(optimized bool, targetLevel int) PlayerCharacter {
 	var player PlayerCharacter
 	player.Level = 1
+	player.ProficiencyBonus = 2
 	player.generateRace()
 	player.generatePlayerClass()
 	player.generateAbilityScores(optimized)

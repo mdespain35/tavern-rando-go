@@ -7,16 +7,16 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"tavernRando/generator"
 
 	"github.com/joho/godotenv"
+	"github.com/mdespain35/tavern-rando-go/tavernRando/characterGenerator"
 	"github.com/rs/cors"
 )
 
 func randomHandler(w http.ResponseWriter, r *http.Request) {
 	params, _ := url.ParseQuery(r.URL.RawQuery)
-	optimized, targetLevel := generator.PopulateGlobalVars([]string{params["optimized"][0], params["level"][0]})
-	character := generator.CreatePlayerCharacter(optimized, targetLevel)
+	optimized, targetLevel := characterGenerator.PopulateGlobalVars([]string{params["optimized"][0], params["level"][0]})
+	character := characterGenerator.CreatePlayerCharacter(optimized, targetLevel)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(character)
@@ -31,8 +31,8 @@ func init() {
 func main() {
 	// Check if the call was from the command line or API Call
 	if len(os.Args) != 1 {
-		optimized, targetLevel := generator.PopulateGlobalVars(os.Args[1:])
-		fmt.Println(generator.CreatePlayerCharacter(optimized, targetLevel))
+		optimized, targetLevel := characterGenerator.PopulateGlobalVars(os.Args[1:])
+		fmt.Println(characterGenerator.CreatePlayerCharacter(optimized, targetLevel))
 	} else {
 		mux := http.NewServeMux()
 		port := os.Getenv("PORT")

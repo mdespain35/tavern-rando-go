@@ -14,9 +14,9 @@ type PlayerCharacter struct {
 	Background       Background    `json:"background"`
 	Level            int           `json:"level"`
 	Class            []PlayerClass `json:"class"`
-	AbilityScores    AbilityScores `json:"ability_scores"`
+	AbilityScores    AbilityScores `json:"abilityScores"`
 	HitPoints        int           `json:"hp"`
-	ProficiencyBonus int           `json:"proficiency_bonus"`
+	ProficiencyBonus int           `json:"proficiencyBonus"`
 	ToolProf         []string      `json:"tools"`
 	WeaponProf       []string      `json:"weapons"`
 	ArmorProf        []string      `json:"armor"`

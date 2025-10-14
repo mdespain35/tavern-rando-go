@@ -1,8 +1,8 @@
 package characterGenerator
 
 type Skill struct {
-	Name string
-	Stat string
+	Name string `json:"name"`
+	Stat string `json:"stat"`
 }
 
 var SkillsList = []Skill{

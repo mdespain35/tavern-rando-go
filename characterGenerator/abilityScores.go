@@ -16,8 +16,8 @@ var PlayerStats = []string{
 }
 
 type AbilityScore struct {
-	Score    int
-	Modifier int
+	Score    int `json:"score"`
+	Modifier int `json:"modifier"`
 }
 
 type AbilityScores map[string]AbilityScore

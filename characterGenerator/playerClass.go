@@ -23,11 +23,11 @@ var ClassOptions = []string{
 }
 
 type PlayerClass struct {
-	Name            string
-	SubClass        string
-	Level           int
+	Name            string `json:"name"`
+	SubClass        string `json:"sub_class"`
+	Level           int    `json:"level"`
+	HitDie          int    `json:"hit_die"`
 	subClassLevel   int
-	HitDie          int
 	preferredStats  []string
 	subclassOptions []string
 }

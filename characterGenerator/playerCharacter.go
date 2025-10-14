@@ -10,17 +10,17 @@ import (
 // TODO: Implement the rest of the PlayerCharacter fields
 type PlayerCharacter struct {
 	// name          string
-	Race             string
-	Background       Background
-	Level            int
-	Class            []PlayerClass
-	AbilityScores    AbilityScores
-	HitPoints        int
-	ProficiencyBonus int
-	ToolProf         []string
-	WeaponProf       []string
-	ArmorProf        []string
-	SkillProf        []Skill
+	Race             string        `json:"race"`
+	Background       Background    `json:"background"`
+	Level            int           `json:"level"`
+	Class            []PlayerClass `json:"class"`
+	AbilityScores    AbilityScores `json:"ability_scores"`
+	HitPoints        int           `json:"hp"`
+	ProficiencyBonus int           `json:"proficiency_bonus"`
+	ToolProf         []string      `json:"tools"`
+	WeaponProf       []string      `json:"weapons"`
+	ArmorProf        []string      `json:"armor"`
+	SkillProf        []Skill       `json:"skills"`
 }
 
 func (p PlayerCharacter) String() string {

@@ -3,14 +3,14 @@ package characterGenerator
 import "fmt"
 
 type Background struct {
-	Name    string
-	Feature BackgroundFeature
+	Name    string            `json:"name"`
+	Feature BackgroundFeature `json:"feature"`
 	// TODO: Add in skill proficiencies that come with each background
 }
 
 type BackgroundFeature struct {
-	Name        string
-	Description string
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 var BackgroundOptions = []Background{
